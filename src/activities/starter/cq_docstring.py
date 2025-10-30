@@ -76,6 +76,7 @@ def get_column_names_s(db_path: str, table_name: str) -> list:
 # Copilot in VSCode / PyCharm
 # Place the cursor under the function name and generate a docstring e.g. '/doc Google-style docstring'
 def generate_histogram(df: pd.DataFrame):
+    """Generates and saves histograms for the given DataFrame.'''
     # Histogram of any columns with values of a data type that can be plotted
     df.hist(
         sharey=False,  # defines whether y-axes will be shared among subplots.
