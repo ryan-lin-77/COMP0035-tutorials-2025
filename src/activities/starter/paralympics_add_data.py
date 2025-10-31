@@ -69,7 +69,7 @@ def insert_team_data(db_path, df):
     }
     # For each row in the team table, if the value in team.name matches a value in country.country
     # then insert the country.id as team.country_id
-    cursor.execute(f"SELECT * FROM team")
+    cursor.execute("SELECT * FROM team")
     rows = cursor.fetchall()
     for row in rows:
         # Find the country id where country.country matches team.name
@@ -77,7 +77,7 @@ def insert_team_data(db_path, df):
         cursor.execute("SELECT id FROM country WHERE country = ?", (country_name,))
         result = cursor.fetchone()
         if result is not None:
-            cursor.execute(f"UPDATE team SET country_id = ? WHERE code = ?", (result[0], row[0]))
+            cursor.execute("UPDATE team SET country_id = ? WHERE code = ?", (result[0], row[0]))
     conn.commit()
     conn.close()
 
@@ -99,7 +99,7 @@ def insert_host_data(db_path, df):
             cursor.execute("SELECT id FROM country WHERE country = ?", (country_name,))
             result = cursor.fetchone()
             if result is not None:
-                cursor.execute(f"INSERT INTO host (place_name, country_id) VALUES (?, ?)", (host, result[0]))
+                cursor.execute("INSERT INTO host (place_name, country_id) VALUES (?, ?)", (host, result[0]))
             else:
                 print(f"Country '{country_name}' not found in country table. Skipping host '{host}'.")
     conn.commit()

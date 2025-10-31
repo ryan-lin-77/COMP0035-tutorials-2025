@@ -3,6 +3,8 @@ import sqlite3
 
 import pandas as pd
 from matplotlib import pyplot as plt
+import os
+import io
 
 
 # Google-style docstring specification: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
@@ -76,6 +78,20 @@ def get_column_names_s(db_path: str, table_name: str) -> list:
 # Copilot in VSCode / PyCharm
 # Place the cursor under the function name and generate a docstring e.g. '/doc Google-style docstring'
 def generate_histogram(df: pd.DataFrame):
+    """Generate and save histograms for a DataFrame.
+    Creates and saves three plots:
+    1. All plottable columns -> "output/histogram_df.png"
+    2. Columns ["participants_m", "participants_f"] -> "output/histogram_participants.png"
+    3. Rows with df['type'] == 'summer' -> "output/histogram_summer.png"
+    Args:
+        df (pd.DataFrame): DataFrame containing numeric columns to plot. Should include
+            'participants_m', 'participants_f', and 'type' for the specific plots.
+    Raises:
+        KeyError: If required columns ('participants_m', 'participants_f', 'type') are missing.
+    Returns:
+        None
+    """
+    
     # Histogram of any columns with values of a data type that can be plotted
     df.hist(
         sharey=False,  # defines whether y-axes will be shared among subplots.
@@ -111,5 +127,45 @@ def describe(csv_data_file: str) -> dict:
        csv_data_file (str): File path of the .csv format data file.
 
     """
+    out_dir = "output"
+    os.makedirs(out_dir, exist_ok=True)
 
-    pass
+    try:
+        df = pd.read_csv(csv_data_file)
+    except Exception as e:
+        raise RuntimeError(f"Failed to read CSV file '{csv_data_file}': {e}")
+
+    results = {}
+    results["shape"] = df.shape
+    results["head"] = df.head().to_dict(orient="records")
+    results["tail"] = df.tail().to_dict(orient="records")
+    results["columns"] = df.columns.tolist()
+    results["dtypes"] = {col: str(dtype) for col, dtype in df.dtypes.items()}
+    results["describe"] = df.describe(include="all").to_dict()
+
+    buf = io.StringIO()
+    df.info(buf=buf)
+    results["info"] = buf.getvalue()
+
+    outfile = os.path.join(out_dir, f"{os.path.splitext(os.path.basename(csv_data_file))[0]}_describe.txt")
+    with open(outfile, "w", encoding="utf-8") as fh:
+        fh.write(f"Source file: {csv_data_file}\n\n")
+        fh.write("SHAPE:\n")
+        fh.write(f"{results['shape']}\n\n")
+        fh.write("COLUMNS:\n")
+        for c in results["columns"]:
+            fh.write(f" - {c}\n")
+        fh.write("\nDTYPES:\n")
+        for k, v in results["dtypes"].items():
+            fh.write(f" - {k}: {v}\n")
+        fh.write("\nHEAD:\n")
+        fh.write(df.head().to_string(index=False))
+        fh.write("\n\nTAIL:\n")
+        fh.write(df.tail().to_string(index=False))
+        fh.write("\n\nDESCRIBE:\n")
+        fh.write(df.describe(include="all").to_string())
+        fh.write("\n\nINFO:\n")
+        fh.write(results["info"])
+
+    return results
+ 

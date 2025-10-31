@@ -18,8 +18,7 @@ def incorrect_spacing_between_functions():
     print('This function has incorrect spacing between it and the function above')
 
 
-def incorrect_spacing_between_functions():
-    print("This is a duplicated function name")
+
 
 
 def incorrect_whitespace(x, y):

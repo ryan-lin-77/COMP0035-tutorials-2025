@@ -53,7 +53,7 @@ def print_data_group_example(file_path):
     except* FileNotFoundError as fnf_errors:
         for e in fnf_errors.exceptions:
             # Example also using the e.add_note method
-            e.add_note(f"File not found while trying to locate the traffic data set")
+            e.add_note("File not found while trying to locate the traffic data set")
             raise
     except* PermissionError as perm_errors:
         for e in perm_errors.exceptions:
@@ -99,13 +99,34 @@ def create_db(schema_path, db_path):
     Args:
         schema_path (str): Path to the SQL schema file.
         db_path (str): Path where the SQLite database will be created.
+        Raises:
+        FileNotFoundError: If the schema file does not exist.
+        sqlite3.DatabaseError: If there is a SQL execution error.
+        sqlite3.OperationalError: If the database cannot be created or written.
     """
+    try:
+        with open(schema_path, 'r') as f:
+            schema_sql = f.read()
 
-    # Create a connection
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+    except FileNotFoundError:
+        print(f"Schema file not found: {schema_path}")
+        return
+    except Exception as e:
+        print(f"Error reading schema file: {e}")
+        return
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.executescript(schema_sql)
+        conn.commit()
+    except sqlite3.DatabaseError as e:
+        print(f"Database error: {e}")
+    except sqlite3.OperationalError as e:
+        print(f"Operational error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
-    # Read the SQL schema file
     with open(schema_path, 'r') as f:
         schema_sql = f.read()
 
@@ -131,9 +152,20 @@ def describe(file_path):
 
         Raises:
             FileNotFoundError: If the file does not exist.
-
+            pd.errors.EmptyDataError: If the CSV file is empty.
+             pd.errors.ParserError: If the CSV cannot be parsed.
     """
-    df = pd.read_csv(file_path)
+    try:
+        df = pd.read_csv(file_path)
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return
+    except pd.errors.EmptyDataError:
+        print(f"Empty CSV file: {file_path}")
+        return
+    except pd.errors.ParserError:
+        print(f"Error parsing CSV file: {file_path}")
+        return
 
     # 2.3 Describe
     pd.set_option("display.max_columns", None)  # Change the pandas display options to print all columns
