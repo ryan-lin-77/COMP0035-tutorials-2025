@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+
 import matplotlib.pyplot as plt
 from pathlib import Path
 
@@ -24,7 +24,7 @@ def describe_dataframe(df):
     print(df.describe())
 
 
-    missing_columns = df[df.isna().any(axis=1)]
+ 
 
 def box_plots(df, title=None):
     num = df.select_dtypes(include="number")
