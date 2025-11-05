@@ -1,7 +1,7 @@
 import sqlite3
 from importlib import resources
+from src.activities import data  
 
-from activities import data
 
 
 def sample_select_queries(db_path):
