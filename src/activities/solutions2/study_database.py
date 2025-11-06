@@ -1,10 +1,7 @@
 import sqlite3
-
-from activities import data
 from importlib import resources
-from activities import solutions2
+
 from activities import starter
-import pandas as pd
 
 
 
