@@ -13,7 +13,7 @@ An event might have attributes such as:
 - category
 - competing athletes
 
-- It may also have behaviours such as:
+It may also have behaviours such as:
 
 - describe the event
 - register athletes
