@@ -3,9 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 
+
 def describe_dataframe(df):
 
-    print("Shape:", df.shape)
+    print("Data Shape:", df.shape)
     print("Columns:", df.columns)
 
     print("Data types:")
