@@ -1,12 +1,6 @@
-""" These are the model classes that represent the data that is stored in the database tables
+""" Model classes for the paralympics database
 
-There isn't a published naming convention for SQL table names. They are often similar to Python with lowercase and
-separated with underscores. Some prefer plural, others stick with singular which is closer to the ORM class.
-
-Primary keys are typically "id". Foreign keys usually include the name of the referenced table with "_id" appended.
-Non-key fields typically follow the lowercase convention with multiple words separated by underscores.
-
-Avoid using SQL reserved keywords as table and attribute names. https://www.w3schools.com/sql/sql_ref_keywords.asp
+Follows on from week 8 activity with validators and methods added to Games
 
 """
 from datetime import datetime
@@ -62,6 +56,24 @@ class Games(SQLModel, table=True):
         CheckConstraint("year BETWEEN 1960 AND 9999")
     )
 
+    # Validators more typically on the Pydantic schema
+    @field_validator("event_type")
+    @classmethod
+    def validate_event_type(cls, value: str) -> str:
+        allowed = ["winter", "summer"]
+        value = value.lower()
+        if value not in allowed:
+            raise ValueError(f"{value} is not in {allowed}")
+        return value
+
+    @field_validator("year")
+    @classmethod
+    def validate_year(cls, value: int) -> int:
+        value = int(value)
+        if value < 1960 or value > 9999:
+            raise ValueError(f"{value} must be between 1960 and 9999")
+        return value
+
     def calculate_duration(self) -> Optional[int]:
         """ Calculate the duration of the Paralympics
 
@@ -80,8 +92,8 @@ class Games(SQLModel, table=True):
             raise ValueError("Both start_date and end_date must be set to calculate duration.")
 
         try:
-            start = datetime.strptime(self.start_date, "%Y-%m-%d").date()
-            end = datetime.strptime(self.end_date, "%Y-%m-%d").date()
+            start = datetime.strptime(self.start_date, "%d-%m-%Y").date()
+            end = datetime.strptime(self.end_date, "%d-%m-%Y").date()
         except ValueError as e:
             raise ValueError(f"Invalid date format: {e}")
 
@@ -90,14 +102,26 @@ class Games(SQLModel, table=True):
 
         return (end - start).days
 
-    # TODO: Add @field_validators here
+    def calculate_fm_ratio(self) -> float:
+        """ Calculates the ratio of female:male participants
 
-    # TODO: Add a custom __repr__ or __str__ method here
-    # __repr__: Developer-focused. Should return an unambiguous representation of the object, ideally something that
-    # could be used to recreate the object. Used by repr(obj).
+        Pydantic and SQLAlchemy should validate that the values are integers
 
-    # __str__: User-focused. Should return a readable, human-friendly description of the object.
-    # Used by str(obj) and print(obj).
+        Returns:
+            ratio (float): ratio of female to male participants
+
+        Raises:
+            ValueError: If either participants_ or participants_f is None, 0 or negative
+        """
+        if self.participants_m is None or self.participants_f is None:
+            raise ValueError("participants_m and participants_f must be set to calculate ratio.")
+        m = self.participants_m
+        f = self.participants_f
+        if m == 0 or f == 0:
+            raise ValueError("participants_m and participants_f must be non-zero.")
+        if m < 0 or f < 0:
+            raise ValueError("participants_m and participants_f must be non-negative.")
+        return float(f) / float(m)
 
 
 class Team(SQLModel, table=True):
@@ -133,8 +157,7 @@ class Team(SQLModel, table=True):
         return value
 
     def __repr__(self) -> str:
-        # Dynamically includes all fields
-        field_values = ", ".join(f"{name}={getattr(self, name)!r}" for name in self.__model_fields__.keys())
+        field_values = ", ".join(f"{name}={getattr(self, name)!r}" for name in self.model_fields.keys())
         return f"{self.__class__.__name__}({field_values})"
 
     def __str__(self) -> str:

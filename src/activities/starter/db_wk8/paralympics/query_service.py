@@ -22,6 +22,7 @@ Do not use FastAPI for this coursework please, that is in COMP0034.
 """
 from typing import List, Sequence
 
+from sqlalchemy.orm.base import state_str
 from sqlmodel import Session, select
 
 from activities.starter.db_wk8.paralympics.models import Country, Disability, Games, GamesHost, Host  # noqa
@@ -70,35 +71,48 @@ class QueryService:
         """
         with Session(self.engine) as session:
             # Find the country_id
-            # Create, Add, Commit, Refresh
-            # return new host
+            stmt = select(Country.id).where(Country.country_name == place_name)
+            country_id = session.exec(stmt).first()
+            new_host = Host(place_name=place_name, country_id=country_id)
+            session.add(new_host)
+            session.commit()
+            session.refresh(new_host)
+            return new_host
+
+            # add, commit, refresh, resh
+
             pass
 
     def read_host(self, host_id: int) -> Host:
         with Session(self.engine) as session:
             # Select and get the first result
-
+            statement = select(Host).where(Host.id == host_id)
+            host = session.exec(statement).first()
             # Alternatives:
             # host = session.exec(statement).one()  # .one() throws error if more than 1 result
-            # host = session.get(Host, host_id)  # Shortcut for getting a row by its id
+            host = session.get(Host, host_id)  # Shortcut for getting a row by its id
             pass
 
-    def update_host(self, updated_host: Host) -> Host:
-        with Session(self.engine) as session:
-            # Add, Commit, Refresh
-            pass
+        def update_host(self, updated_host: Host) -> Host:
+            with Session(self.engine) as session:
+                session.add(updated_host)
+                session.commit()
+                session.refresh(updated_host)
+                return updated_host
 
-    def delete_host(self, host_id: int) -> None:
-        """ Find the host that matches the host_id, then delete it """
-        with Session(self.engine) as session:
-            # Select, Delete, Commit
-
+        def delete_host(self, host_id: int) -> None:
+            """ Find the host that matches the host_id, then delete it """
+            with Session(self.engine) as session:
+                host = session.exec(select(Host).where(Host.id == host_id)).first()
+                session.delete(host)
+                session.commit()
+        #
     def query_games_year_type(self) -> Sequence[tuple]:
         # 1. List all Paralympics (games) with their year and type. Order by year.
-        statement = # select, order by
+        statement = select(Games.year, Games.event_type).order_by(Games.year)
         with Session(self.engine) as session:
-            # Execute, Get all results
-            pass
+            result = session.exec(statement).all()
+            return result
 
     def query_games_type_with_host(self, event_type: str) -> Sequence[tuple]:
         """ 2. List all winter Paralympics (games) with the host city name and year.
@@ -110,87 +124,93 @@ class QueryService:
                 WHERE games.event_type = ?
                 ORDER BY games.year
         """
-        statement = #
-        # alternative_join_statement = (
-        #     select(Host.place_name, Games.year)
-        #     .join(GamesHost, Games.id == GamesHost.games_id)  # using `JOIN ... ON ...`
-        #     .join(Host, Host.id == GamesHost.host_id)
-        #     .where(Games.event_type == event_type)
-        #     .order_by(Games.year)
-        # )
-        with Session(self.engine) as session:
-            # Execute, get all results
-            pass
+        statement = (
+            select(Host.place_name, Games.year)
+            .join(Host, Games.hosts)  # using Games.hosts relationship
+            .where(Games.event_type == event_type)
+            .order_by(Games.year)
+        )
 
-    def query_disabilities(self) -> Sequence[tuple]:
-        # 3. Find all disabilities recorded in the database.
-        statement = select("complete this!")
+        alternative_join_statement = (
+            select(Host.place_name, Games.year)
+            .join(GamesHost, Games.id == GamesHost.games_id)  # using `JOIN ... ON ...`
+            .join(Host, Host.id == GamesHost.host_id)
+            .where(Games.event_type == event_type)
+            .order_by(Games.year)
+        )
         with Session(self.engine) as session:
-            results = session.exec(statement).all()
-            return results
-
-    def query_games_after_year(self, year: int) -> Sequence[tuple]:
-        # 4. Get all Paralympics (Games) that took place after the year 2000.
-        statement = select("complete this!")
-        with Session(self.engine) as session:
-            results = session.exec(statement).all()
-            return results
-
-    def query_region_teams(self, region: str) -> Sequence[tuple]:
-        # 5. Find all teams from a specific region (e.g. Oceania).
-        statement = select("complete this!")
-        with Session(self.engine) as session:
-            results = session.exec(statement).all()
-            return results
-
-    def query_host_country(self, country: str) -> Sequence[tuple]:
-        # 6. List all hosts located in a specific country (e.g., 'Italy') and the year they held the Paralympics.
-        statement = select("complete this!")
-        with Session(self.engine) as session:
-            results = session.exec(statement).all()
-            return results
-
-    def query_disabilities_by_country(self, country: str) -> Sequence[tuple]:
-        statement = select("complete this!")
-        with Session(self.engine) as session:
-            results = session.exec(statement).all()
-            return results
-
-    def query_games_host_country(self) -> Sequence[tuple]:
-        # 7. Show all Paralympics (games) along with their host city and host country.
-        statement = select("complete this!")
-        with Session(self.engine) as session:
-            results = session.exec(statement).all()
-            return results
-
-    def query_disabilities_by_games(self) -> Sequence[tuple]:
-        # 8. List all disabilities associated with each Paralympics (games).
-        statement = select("complete this!")
-        with Session(self.engine) as session:
-            results = session.exec(statement).all()
-            return results
-
-    def query_teams_year(self, year: int, event_type: str) -> Sequence[tuple]:
-        # 9. Find all teams that participated in a year and event_type (e.g., winter 2016).
-        statement = select("complete this!")
-        with Session(self.engine) as session:
-            results = session.exec(statement).all()
-            return results
-
-    def query_games_disability(self, disability: str) -> Sequence[tuple]:
-        # 10. Find all the Paralympics that have competitors who are 'Amputees'
-        statement = select("complete this!")
-        with Session(self.engine) as session:
-            results = session.exec(statement).all()
-            return results
-
-    def update_disability(self, disability_description: str) -> Disability:
-        # 11. **Update** all instances of the disability 'Les Autres' to 'Other'
-        with Session(self.engine) as session:
-            # Find the disabiity
-            statement = select("complete this!")
-            disability = session.exec(statement).one()
-            # Make the change to disability.description
-            # Add and commit
-            # Refresh
-            return  # return the updated disability
+            result = session.exec(statement).all()
+            return result
+    #
+    # def query_disabilities(self) -> Sequence[tuple]:
+    #     # 3. Find all disabilities recorded in the database.
+    #     statement = select("complete this!")
+    #     with Session(self.engine) as session:
+    #         results = session.exec(statement).all()
+    #         return results
+    #
+    # def query_games_after_year(self, year: int) -> Sequence[tuple]:
+    #     # 4. Get all Paralympics (Games) that took place after the year 2000.
+    #     statement = select("complete this!")
+    #     with Session(self.engine) as session:
+    #         results = session.exec(statement).all()
+    #         return results
+    #
+    # def query_region_teams(self, region: str) -> Sequence[tuple]:
+    #     # 5. Find all teams from a specific region (e.g. Oceania).
+    #     statement = select("complete this!")
+    #     with Session(self.engine) as session:
+    #         results = session.exec(statement).all()
+    #         return results
+    #
+    # def query_host_country(self, country: str) -> Sequence[tuple]:
+    #     # 6. List all hosts located in a specific country (e.g., 'Italy') and the year they held the Paralympics.
+    #     statement = select("complete this!")
+    #     with Session(self.engine) as session:
+    #         results = session.exec(statement).all()
+    #         return results
+    #
+    # def query_disabilities_by_country(self, country: str) -> Sequence[tuple]:
+    #     statement = select("complete this!")
+    #     with Session(self.engine) as session:
+    #         results = session.exec(statement).all()
+    #         return results
+    #
+    # def query_games_host_country(self) -> Sequence[tuple]:
+    #     # 7. Show all Paralympics (games) along with their host city and host country.
+    #     statement = select("complete this!")
+    #     with Session(self.engine) as session:
+    #         results = session.exec(statement).all()
+    #         return results
+    #
+    # def query_disabilities_by_games(self) -> Sequence[tuple]:
+    #     # 8. List all disabilities associated with each Paralympics (games).
+    #     statement = select("complete this!")
+    #     with Session(self.engine) as session:
+    #         results = session.exec(statement).all()
+    #         return results
+    #
+    # def query_teams_year(self, year: int, event_type: str) -> Sequence[tuple]:
+    #     # 9. Find all teams that participated in a year and event_type (e.g., winter 2016).
+    #     statement = select("complete this!")
+    #     with Session(self.engine) as session:
+    #         results = session.exec(statement).all()
+    #         return results
+    #
+    # def query_games_disability(self, disability: str) -> Sequence[tuple]:
+    #     # 10. Find all the Paralympics that have competitors who are 'Amputees'
+    #     statement = select("complete this!")
+    #     with Session(self.engine) as session:
+    #         results = session.exec(statement).all()
+    #         return results
+    #
+    # def update_disability(self, disability_description: str) -> Disability:
+    #     # 11. **Update** all instances of the disability 'Les Autres' to 'Other'
+    #     with Session(self.engine) as session:
+    #         # Find the disabiity
+    #         statement = select("complete this!")
+    #         disability = session.exec(statement).one()
+    #         # Make the change to disability.description
+    #         # Add and commit
+    #         # Refresh
+    #         return  # return the updated disability

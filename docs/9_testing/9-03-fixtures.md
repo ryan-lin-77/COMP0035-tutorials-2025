@@ -101,7 +101,7 @@ def session_fixture():
 
 ### Activity: Create and use a database fixture
 
-The following code is in [test_playing_cards.py](../../tests/test_playing_cards.py):
+The following code is in [test_playing_cards.py](../future_weeks/test_playing_cards.py):
 
 ```python
 def test_select_returns_cards():

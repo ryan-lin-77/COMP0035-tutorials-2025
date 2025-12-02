@@ -1,6 +1,6 @@
 # Activities 9: Testing (unit testing and continuous integration in GitHub)
 
-_*Theme: Using Python to work with data*_
+_*Theme: Working with code (for applications)*_ 
 
 This is the final set of activities for COMP0035.
 

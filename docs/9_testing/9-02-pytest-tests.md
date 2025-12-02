@@ -49,7 +49,7 @@ Given the guidance in the introduction, here is a suggested approach for writing
 
 These activities give command line instructions only, but you can use any method.
 
-An example is in [test_playing_cards.py](../../tests/test_playing_cards.py).
+An example is in [test_playing_cards.py](../future_weeks/test_playing_cards.py).
 
 ## Testing errors and exceptions
 
@@ -122,7 +122,7 @@ def test_add_raises_type_error_on_strings():
 
 ### 1. Run a test
 
-1. Look at the code in [test_playing_cards.py](../../tests/test_playing_cards.py).
+1. Look at the code in [test_playing_cards.py](../future_weeks/test_playing_cards.py).
 
    It contains:
 

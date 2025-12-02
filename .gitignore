@@ -671,5 +671,6 @@ cython_debug/
 docs/md_to_pdf
 docs/md_to_pdf/
 docs/future_weeks
+docs/future_weeks/test_playing_cards.py
 
 .DS_Store
