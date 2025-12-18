@@ -50,13 +50,52 @@ def main():
         print(f"{r[0]} {r[1]}")
 
     # 3. Find all disabilities recorded in the database.
+    print("All disabilities")
+    result = queries.query_disabilities()
+    for r in result:
+        print(r)
+
     # 4. Get all Paralympics (Games) that took place after the year 2000.
+    print("All Games after 2000")
+    result = queries.query_games_after_year(2000)
+    for r in result:
+        print(r)
+
     # 5. Find all teams from a specific region (e.g. Oceania).
+    print("teams from a specific region (e.g. Oceania)")
+    result = queries.query_region_teams(region="Oceania")
+    for r in result:
+        print(r)
+
     # 6. List all hosts located in a specific country (e.g., 'Italy') and the year they held the Paralympics.
+    print("hosts located in a specific country (e.g., 'Italy') and the year they held the Paralympics")
+    result = queries.query_host_country(country = "Italy")
+    for r in result:
+        print(r)
+
     # 7. Show all Paralympics (games) along with their host city and host country.
+    print("All Paralympics (games) along with their host city and host country.")
+    result = queries.query_games_host_country()
+    for r in result:
+        print(r)
+
     # 8. List all disabilities associated with each Paralympics (games).
-    # 9. Find all teams that participated in a specific Paralympics (game) (e.g., Tokyo 2016).
+    print("all disabilities associated with each Paralympics")
+    result = queries.query_disabilities_by_games()
+    for r in result:
+        print(r)
+
+    # 9. Find all teams that participated in a specific Paralympics (game) (e.g., Summer 2016).
+    print("teams that participated in a specific Paralympics (e.g., summer 2016)")
+    result = queries.query_teams_year(year=2016, event_type="summer")
+    for r in result:
+        print(r)
+
     # 10. Find all the Paralympics that have competitors who are 'Amputees'
+    print("Paralympics that have competitors who are 'Amputee's")
+    result = queries.query_games_disability(disability="Amputee")
+    for r in result:
+        print(r)
     # 11. **Update** all instances of the disability 'Les Autres' to 'Other'
 
 

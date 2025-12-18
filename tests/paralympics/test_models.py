@@ -6,7 +6,7 @@ https://sqlmodel.tiangolo.com/tutorial/fastapi/tests/#pytest-fixtures
 The following tutorial covers testing using only SQLModel:
  https://pytest-with-eric.com/database-testing/pytest-sql-database-testing/
 
-Tests:
+Tests included:
 
     - Games instance with an invalid year
     - Games instance with a valid year
@@ -16,29 +16,31 @@ Tests:
     - Calculate the mf ratio where the participants_m and participants_f are not present
 
 """
-from sqlalchemy.exc import IntegrityError
-
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 from para_app.models import Games
 
 
-def test_duration():
+def test_calculate_duration():
     """
-    GIVEN a Games instance is created a valid start_date and end_date
-    WHEN the method 'calculate_duration' is called
-    THEN it should return an integer in days of the event duration
+        Given a Games instance is created a valid start_date and end_date
+        When the method 'calculate_duration' is called,
+        Then it should return an integer in days of the event duration
     """
+    # Arrange
     games = Games(event_type="summer", year=2020, start_date="12-12-2020", end_date="24-12-2020")
+    # Act
     duration = games.calculate_duration()
+    # Assert
     assert duration == 12
 
 
-def test_duration_missing_date():
+def test_calculate_duration_missing_date():
     """
-    GIVEN a Games instance with a valid missing start_date and valid end_date
-    WHEN the method 'calculate_duration' is called
-    THEN it should raise a ValueError
+        Given a Games instance with a valid missing start_date and valid end_date
+        When the method 'calculate_duration' is called,
+        Then it should raise a ValueError
     """
     games = Games(event_type="summer", year=2020, end_date="24-12-2020")
     with pytest.raises(ValueError):
@@ -48,21 +50,20 @@ def test_duration_missing_date():
 def test_create_games_with_valid_year():
     """
         Given a valid year
-        When a Games instance is created
+        When a Games instance is created,
         Then a Games instance is successfully created and the year value is present in the repr
 
         This test only tests the Games class so does not require any of the fixtures
     """
     games = Games(event_type="summer", year=2020)
     assert games.year == 2020
-    assert '2020' in repr(
-        games)  # this introduces the repr() method so might moving away from 'unit' test
+    assert '2020' in repr(games)  # included just to show the repr() method
 
 
 def test_create_games_with_invalid_year():
     """
         Given an invalid year
-        When a Games instance is created
+        When a Games instance is created,
         Then a ValueError is raised
 
         This test only tests the Games class so does not require the fixtures
@@ -76,15 +77,13 @@ def test_create_games_with_invalid_year():
 
 def test_create_games_with_invalid_year_db(session_fixture):
     """
-
-    GIVEN a Games instance with an invalid year and a database fixture
-    WHEN the instance is commited
-    THEN it should raise a sqlalchemy.exc.IntegrityError
-
+        Given a Games instance with an invalid year and a database fixture
+        When the instance is committed,
+        Then it should raise a sqlalchemy.exc.IntegrityError
     """
     invalid_game = Games(event_type="summer", year=1959)
     session_fixture.add(invalid_game)
-    with pytest.raises(IntegrityError) as exc_info:
+    with pytest.raises(IntegrityError):
         session_fixture.commit()
 
 
@@ -93,11 +92,9 @@ def test_create_games_with_invalid_year_db(session_fixture):
 # Calculate the mf ratio where the participants_m and participants_f are present
 def test_calculate_ratio_values_present():
     """
-
-    GIVEN a Games instance with values for participants_m and participants_f
-    WHEN the method 'calculate_ratio_values' is called
-    THEN it should return a float representing the ratio of participants_m and participants_f
-
+    Given a Games instance with values for participants_m and participants_f
+    When the method 'calculate_fm_ratio' is called,
+    Then it should return a float representing the ratio of participants_m and participants_f
     """
     pass
 
@@ -105,10 +102,8 @@ def test_calculate_ratio_values_present():
 # Calculate the mf ratio where the participants_m and participants_f are not present
 def test_calculate_ratio_values_missing():
     """
-
     Given a Games instance with missing values for participants_m and participants_f
-    WHEN the method 'calculate_ratio_values' is called
-    THEN it should raise a ValueError
-
+    When the method 'calculate_fm_ratio' is called,
+    Then it should raise a ValueError
     """
     pass

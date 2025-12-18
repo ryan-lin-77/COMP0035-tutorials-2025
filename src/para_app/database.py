@@ -12,7 +12,7 @@ db_url = f"sqlite:///{str(db_file)}"
 
 engine = create_engine(
     db_url,
-    echo=True
+    echo=False
 )  # Echo=True prints the SQL to the terminal, which can help when debugging.
 
 
