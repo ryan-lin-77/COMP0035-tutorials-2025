@@ -1,0 +1,7 @@
+# app.py
+from database import create_db_and_tables, engine
+
+
+if __name__ == "__main__":
+    create_db_and_tables()
+    print("Database created successfully.")
