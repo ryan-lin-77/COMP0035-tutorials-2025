@@ -38,11 +38,11 @@ class Athlete(BaseModel):
         Methods:
             introduce(): Prints an introduction of the athlete.
     """
-    first_name: str
-    last_name: str
-    team_code: str
-    disability_class: str
-    medals: list[Medal]
+    first_name: str  # Must be provided
+    last_name: str  # Must be provided
+    team_code: str | None  # Optional, can be None
+    disability_class: str | None  # Optional, can be None
+    medals: list[Medal] = []  # Set to empty as default
 
     def introduce(self) -> str:
         """
@@ -80,8 +80,16 @@ no_medal = Athlete(first_name='ran', last_name='li', team_code='CHN', disability
 medal1 = Medal(type=MedalType.GOLD, date_won=date(2023, 7, 1))
 no_medal.medals.append(medal1)
 
-
+print(no_medal.introduce())
 try:
-    bp = Athlete(first_name="Bianka", medals=5)
+    bp = Athlete(first_name="Bianka", medals=1)
 except ValidationError as e:
     print(e.errors())
+
+print("\n--- Invalid example WITHOUT try/except ---")
+bp2 = Athlete(first_name="Bianka", medals=1)
+
+
+
+
+
